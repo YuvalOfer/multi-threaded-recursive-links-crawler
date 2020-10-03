@@ -9,9 +9,6 @@ from bs4 import BeautifulSoup
 from LinksCrawler import config
 
 LOGGER = logging.getLogger('Crawler')
-fh = logging.FileHandler('spam.log')
-fh.setLevel(logging.INFO)
-# LOGGER.addHandler(fh)
 
 
 class Crawler:
@@ -46,13 +43,13 @@ class Crawler:
         for i in range(self.thread_count):
             t = threading.Thread(target=self.crwal_thread, name=f"worker {i}")
             t.start()
-            time.sleep(3)
+            time.sleep(2)
             threads.append(t)
 
         self.logger.info("initialized all threads")
         for t in threads:
             t.join()
-        # self.crwal_thread()
+
         self.q.join()
         return self.url_dict, self.broken_links
 
@@ -68,7 +65,6 @@ class Crawler:
             url_depth = self.url_dict.get(url)
             self.process_url(url, url_depth)
             self.q.task_done()
-
             self.logger.info(f"finished working on {url}")
 
     def process_url(self, url, url_depth):
@@ -84,9 +80,8 @@ class Crawler:
                 valid_url = self.check_valid(new_url)
                 with self._dict_lock:
                     dict_new_url_depth = self.url_dict.get(new_url, -1)
-                    self.logger.warning(f"{new_url} dict depth is: {dict_new_url_depth}")
                     if dict_new_url_depth != -1: # url was already found
-                        self.logger.warning(f"{new_url} already exists in th dict")
+                        self.logger.info(f"{new_url} already exists in th dict")
                         if new_url_depth < dict_new_url_depth:
                             self.logger.warning(f"the new depth {new_url_depth} is better than {dict_new_url_depth}, updating")
                             self.url_dict[new_url] = new_url_depth
@@ -95,15 +90,10 @@ class Crawler:
                     elif valid_url:
                         self.url_dict[new_url] = new_url_depth
                         self.logger.info(f"{new_url} was added to the dict with value {new_url_depth}")
-                        if new_url_depth == 3:
-                            print("\n\n")
-                            self.logger.error(f"dict depth: {dict_new_url_depth}")
-                            self.logger.error(f"leading url: {url}, leading depth: {url_depth}")
 
                     else:
                         self.broken_links.add(new_url)
                         self.logger.info(f"{new_url} is a broken and was added to the list")
-                        
 
                 if new_url_depth < self.crawling_depth and valid_url:
                     self.q.put(new_url)
