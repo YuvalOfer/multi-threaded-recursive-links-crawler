@@ -16,5 +16,6 @@ def main():
     for link in broken_links:
         print(link)
 
+
 if __name__ == '__main__':
     main()

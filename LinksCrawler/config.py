@@ -1,4 +1,4 @@
-LOGGING_FORMAT = '%(asctime)s %(name)s %(levelname)s %(message)s'
+LOGGING_FORMAT = '%(asctime)s %(threadName)s %(levelname)s %(message)s'
 INITIAL_URL = 'https://www.guardicore.com/'
 CRAWLER_THREAD_COUNT = 20
 CRAWLING_DEPTH = 2
