@@ -1,6 +1,6 @@
-# guardicore_crawler_assignment
+# multi-threaded-recursive-links-crawler
 ### Instructions:
 * clone into a directory
-* CD into the extracted directory `guardicore_crawler_assignment`
+* CD into the extracted directory `multi-threaded-recursive-links-crawler`
 * Run `pip install -e .`
 * Run `LinksCrawler/main.py`
