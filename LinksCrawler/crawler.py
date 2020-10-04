@@ -1,9 +1,9 @@
 import logging
 import time
 from queue import Queue
-
 import requests
 import threading
+import concurrent.futures
 from bs4 import BeautifulSoup
 
 from LinksCrawler import config
@@ -39,16 +39,11 @@ class Crawler:
         initlize all threads and return the result
         :return: tuple of dictionary and list
         """
-        threads = []
-        for i in range(self.thread_count):
-            t = threading.Thread(target=self.crwal_thread, name=f"worker {i}")
-            t.start()
-            time.sleep(2)
-            threads.append(t)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.thread_count) as executor:
 
-        self.logger.info("initialized all threads")
-        for t in threads:
-            t.join()
+            for i in range(self.thread_count):
+                executor.submit(self.crwal_thread)
+                time.sleep(3)
 
         self.q.join()
         return self.url_dict, self.broken_links
@@ -102,7 +97,6 @@ class Crawler:
         except Exception as e:
             self.logger.warning(f'caught and unexpected exception while processing new_url: {url}')
 
-    #TODO: remove pdf from urls
     @staticmethod
     def get_urls_from_url(url):
         """
@@ -120,6 +114,7 @@ class Crawler:
                     href = url + href
                 links.append(href)
         return set(links)
+
 
     @staticmethod
     def check_valid(url):
