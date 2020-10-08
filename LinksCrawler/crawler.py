@@ -34,20 +34,19 @@ class Crawler:
         self.thread_count = thread_count
         self.crawling_depth = crawling_depth
         self.logger = logger
-        self._dict_lock = threading.Lock()
-        self.pool = concurrent.futures.ThreadPoolExecutor(max_workers=self.thread_count)
         self.initialize_crawler()
 
     def initialize_crawler(self):
         """
         putting the initial link in the queue
         """
+        self._dict_lock = threading.Lock()
         self.url_dict[self.init_url] = 0
         self.q.put(URLD(self.init_url, 0))
         self.logger.info(f"queue initialized with link: {self.init_url}")
 
     def run(self):
-        with self.pool:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.thread_count) as self.pool:
             while True:
                 try:
                     urld = self.q.get(timeout=30)
@@ -64,8 +63,7 @@ class Crawler:
             self.q.join()
         return self.url_dict, self.broken_links
 
-    @staticmethod
-    def scrape_page(urld):
+    def scrape_page(self, urld):
         try:
             response = requests.get(urld.url)
             if response.status_code not in config.BAD_STATUS_CODES:
