@@ -3,4 +3,4 @@
 * clone into a directory
 * CD into the extracted directory `multi-threaded-recursive-links-crawler`
 * Run `pip install -e .`
-* Run `LinksCrawler/main.py`
+* Run `python LinksCrawler/main.py`
