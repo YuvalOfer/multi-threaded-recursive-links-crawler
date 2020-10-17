@@ -61,7 +61,7 @@ class Crawler:
                     job = self.pool.submit(self.scrape_page, urld)
                     job.add_done_callback(self.post_scrape_callback)
                     self.q.task_done()
-                except Empty:
+                except (Empty, KeyboardInterrupt):
                     break
                 except Exception:
                     self.logger.exception("Caught an unexpected exception in the main loop")
