@@ -8,7 +8,6 @@ from typing import Tuple, Dict, Set
 
 from LinksCrawler import config
 
-
 LOGGER = logging.getLogger('Crawler')
 
 
@@ -40,9 +39,8 @@ class Crawler:
         self.logger = logger
         self.pool = concurrent.futures.ThreadPoolExecutor(max_workers=self.thread_count)
         self._dict_lock = threading.Lock()
-        self.initialize_crawler()
 
-    def initialize_crawler(self):
+    def initialize_crawler(self) -> None:
         """
         putting the initial link in the queue
         """
@@ -53,8 +51,8 @@ class Crawler:
     def run(self) -> Tuple[Dict, Set]:
         """
         Main function of the crawler, extracts a link from the queue, initiates scraping and callback
-
         """
+        self.initialize_crawler()
         with self.pool:
             while True:
                 try:
@@ -89,6 +87,10 @@ class Crawler:
         """
         The post I/O function, calls for sub-links insertion if crawling depth is not reached and results dict update
         """
+        possible_exception = res.exception()
+        if possible_exception:
+            self.logger.exception("canceling the callback due to exception in the previous function")
+            return
         response, url, url_depth = res.result()
         if url_depth != -1:
             if url_depth < self.crawling_depth:
